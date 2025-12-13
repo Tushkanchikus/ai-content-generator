@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Content Generator | Yandex Cloud</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+      background: #f8f9fa;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #1a73e8;
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+    textarea {
+      width: 100%;
+      height: 140px;
+      font-size: 16px;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+    textarea:focus {
+      border-color: #1a73e8;
+      outline: none;
+    }
+    button {
+      padding: 14px 28px;
+      font-size: 16px;
+      background: #1a73e8;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #1557b0;
+    }
+    #result {
+      margin-top: 20px;
+      padding: 20px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      min-height: 120px;
+      background: #f8f9fa;
+    }
+    .loading {
+      color: #1a73e8;
+      font-weight: 500;
+    }
+    .success {
+      color: #137333;
+      font-weight: 500;
+    }
+    .error {
+      color: #d93025;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🤖 AI Content Generator</h1>
+    <p>Введите тему для генерации текста (Instagram посты, статьи, описания):</p>
+    <textarea id="prompt" placeholder="Например: 'Сделай Instagram пост про уютное утро с кофе'"></textarea><br><br>
+    <button onclick="generate()">🎯 Сгенерировать контент</button>
+    <div id="result"></div>
+  </div>
+
+<script>
+async function generate() {
+  const prompt = document.getElementById("prompt").value.trim();
+  const resultDiv = document.getElementById("result");
+  
+  if (!prompt) {
+    resultDiv.innerHTML = '<span class="error">⚠️ Введите тему!</span>';
+    return;
+  }
+  
+  resultDiv.innerHTML = '<span class="loading">⏳ Генерация текста... (YandexGPT)</span>';
+  
+  try {
+    const resp = await fetch(
+      "https://d5d71lui36v3bq8i4no1.laqt4bj7.apigw.yandexcloud.net/generate",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt })
+      }
+    );
+    
+    const data = await resp.json();
+    
+    if (data.result) {
+      resultDiv.innerHTML =
+        `<span class="success">✅ Готово!</span><br><br><strong>${data.result}</strong>`;
+    } else {
+      resultDiv.innerHTML =
+        `<span class="error">❌ Ошибка: ${data.error || 'Сервер не отвечает'}</span>`;
+    }
+  } catch (e) {
+    resultDiv.innerHTML =
+      `<span class="error">❌ Ошибка сети: ${e.message}. Проверь URL в коде.</span>`;
+  }
+}
+</script>
+</body>
+</html>
